@@ -63,8 +63,8 @@ public class Main {
         System.out.println(lStaff.digestTenor());
         System.out.println(lStaff.digestBass());
 
-        Printer printer = new Printer(lStaff);
-        printer.print();
+        //Printer printer = new Printer(lStaff);
+        //printer.print();
 
         Scanner template = new Scanner(new File("template.ly"));
         FileWriter output = new FileWriter(args[2].replace("gabc", "ly"), false);

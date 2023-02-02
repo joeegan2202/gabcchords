@@ -109,7 +109,10 @@ shiftRightB = { \once \override NoteColumn #'force-hshift = #1.6 }
             (set! tie event)))
        (acknowledgers
          ((note-head-interface engraver grob source-engraver)
-            (set! columns (cons grob columns)))
+            (set! columns (cons grob columns))
+            )
+         ((note-collision-interface engraver grob source-engraver)
+          (ly:grob-set-property! grob 'X-extent '(0 . 0)))
          ((lyric-syllable-interface engraver grob source-engraver)
             (set! lyrics-space (cons (cdr (ly:grob-property grob 'X-extent)) lyrics-space))
             (ly:grob-set-property! grob 'X-extent '(0 . 0))))
@@ -136,6 +139,8 @@ shiftRightB = { \once \override NoteColumn #'force-hshift = #1.6 }
 
 %(text-space (+ (if (null? lyrics-left) 2 (if (> (string-length (ly:grob-property (car lyrics-left) 'text)) 2) 3.5 2))
 %                                   (if (member (string-ref (ly:grob-property (car lyrics-left) 'text) (- (string-length (ly:grob-property (car lyrics-left) 'text)) 1)) '("," "." ";" ":" "!" "?")) 1 0)))
+%
+% (ly:message "~a" (ly:grob-property grob 'X-extent))
 %
 %(if slur-on (ly:grob-set-property! (ly:grob-parent column 1) 'X-extent '(0.8 . 0.8) )
 %                   (if slur
@@ -184,6 +189,7 @@ quil  = {\once\override NoteHead #'stencil = #ly:text-interface::print \once\ove
     \override Stem.length = #0
     %\override NoteColumn.X-extent = #'(0.8 . 0.8)
     \override Rest.transparent = ##t
+    %\override NoteColumn.ignore-collision = ##t
   }
   \context {
     \Score
