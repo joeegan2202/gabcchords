@@ -56,6 +56,7 @@ public class Main {
 
         LStaff lStaff;
         lStaff = gStaff.convert(new LLyrics(), sharps, startingNote);
+        lStaff.makeUpBreaks();
 
         System.out.println(lStaff.digestLyrics());
         System.out.println(lStaff.digestSoprano());
@@ -63,8 +64,29 @@ public class Main {
         System.out.println(lStaff.digestTenor());
         System.out.println(lStaff.digestBass());
 
-        //Printer printer = new Printer(lStaff);
-        //printer.print();
+        try {
+            Scanner hold = new Scanner(System.in);
+            Recorder.setSharps(sharps);
+
+            // Record the alto line
+            Recorder.startRecording(lStaff.getSoprano(), lStaff.getAlto());
+            hold.nextLine();
+            Recorder.stopRecording();
+
+            // Record the tenor line
+            Recorder.startRecording(lStaff.getSoprano(), lStaff.getTenor());
+            hold.nextLine();
+            Recorder.stopRecording();
+
+            // Record the bass line
+            Recorder.startRecording(lStaff.getSoprano(), lStaff.getBass());
+            hold.nextLine();
+            Recorder.stopRecording();
+        } catch (Exception e) {
+            System.out.println("Could not open midi device!");
+        }
+
+        lStaff.fixTenor();
 
         Scanner template = new Scanner(new File("template.ly"));
         FileWriter output = new FileWriter(args[2].replace("gabc", "ly"), false);
