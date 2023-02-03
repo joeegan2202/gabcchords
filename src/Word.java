@@ -212,7 +212,14 @@ public class Word implements GObject {
             stopDash = group.getLyric().equals("_") || lastGroup.get() == group;
 
             ArrayList<LNote> temp = group.convert(clef, sharps, transpose);
-            if(temp.size() > 1) {
+            if(temp.size() == 4 && temp.get(1).equals(temp.get(2))) {
+                // Fixes the issue of having a 4 note group that should be 2 groups of 2 notes tied together
+                temp.get(0).setBeginGroup();
+                temp.get(1).setEndGroup();
+                temp.get(1).setTie();
+                temp.get(2).setBeginGroup();
+                temp.get(3).setEndGroup();
+            } else if(temp.size() > 1) {
                 temp.get(0).setBeginGroup();
                 temp.get(temp.size() - 1).setEndGroup();
             }

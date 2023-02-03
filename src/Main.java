@@ -61,6 +61,7 @@ public class Main {
         try {
             Scanner hold = new Scanner(System.in);
             Recorder.setSharps(sharps);
+            Recorder.chooseDevice(hold);
 
             // Record the alto line
             System.out.println("Play the soprano and alto lines on the MIDI controller, and press enter when finished: ");
@@ -79,11 +80,13 @@ public class Main {
             Recorder.startRecording(lStaff.getSoprano(), lStaff.getBass());
             hold.nextLine();
             Recorder.stopRecording();
-        } catch (Exception e) {
-            System.out.println("Could not open midi device!");
-        }
 
-        lStaff.fixTenor();
+            Recorder.closeDevice();
+
+            lStaff.fixTenor();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
 
         Scanner template = new Scanner(new File("template.ly"));
         FileWriter output = new FileWriter(args[2].replace("gabc", "ly"), false);

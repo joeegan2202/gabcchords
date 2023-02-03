@@ -2,31 +2,53 @@ import javax.sound.midi.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.ListIterator;
+import java.util.Scanner;
 
 public class Recorder implements Receiver {
     public static Recorder recorder;
+    public static Transmitter transmitter;
     public static MidiDevice device;
     public static int sharps;
     public static void setSharps(int sharps) {
         Recorder.sharps = sharps;
     }
+
+    public static void chooseDevice(Scanner scanner) throws Exception {
+        MidiDevice.Info[] devices = MidiSystem.getMidiDeviceInfo();
+        while(device == null) {
+            System.out.println("Choose a MIDI device (-1 to quit):");
+            int i = 0;
+            for (MidiDevice.Info info : devices) {
+                System.out.println(i + ": " + info);
+                i++;
+            }
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (choice == -1) throw new Exception();
+            device = MidiSystem.getMidiDevice(devices[choice]);
+
+            try {
+                device.open();
+                transmitter = device.getTransmitter();
+            } catch (MidiUnavailableException e) {
+                System.out.println("That MIDI device is unavailable!");
+                device = null;
+            }
+        }
+    }
     public static void startRecording(ArrayList<LObject> soprano, ArrayList<LObject> other) throws Exception {
         recorder = new Recorder(soprano, other);
-        MidiDevice.Info[] devices = MidiSystem.getMidiDeviceInfo();
-        for(MidiDevice.Info info : devices) {
-            device = MidiSystem.getMidiDevice(devices[3]);
-        }
-        if(device == null) throw new Exception();
-
-        device.open();
-        Transmitter transmitter = device.getTransmitter();
         transmitter.setReceiver(recorder);
     }
 
     public static void stopRecording() {
+        recorder = null;
+    }
+
+    public static void closeDevice() {
         device.close();
         device = null;
-        recorder = null;
     }
 
     private int noteHigh = 0;
