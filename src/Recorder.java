@@ -1,6 +1,7 @@
 import javax.sound.midi.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.ListIterator;
 
 public class Recorder implements Receiver {
     public static Recorder recorder;
@@ -34,12 +35,31 @@ public class Recorder implements Receiver {
     private final HashSet<Integer> notesOn;
     private LNote lastNote = null;
     private final ArrayList<LObject> soprano;
+    private ListIterator<LObject> sopranoIter;
+    private ListIterator<LNote> noteIter;
     private final ArrayList<LObject> other;
 
     public Recorder(ArrayList<LObject> soprano, ArrayList<LObject> other) {
         this.soprano = soprano;
+        sopranoIter = soprano.listIterator();
+        noteIter = null;
         this.other = other;
         notesOn = new HashSet<>();
+    }
+
+    private LNote advance() throws Exception {
+        while(noteIter == null) {
+            if(!sopranoIter.hasNext()) throw new Exception();
+            LObject obj = sopranoIter.next();
+            if(obj.getClass().equals(LVoiceFragment.class)) noteIter = ((LVoiceFragment)obj).getNotesIterator();
+        }
+
+        if(noteIter.hasNext()) {
+            return noteIter.next();
+        } else {
+            noteIter = null;
+            return advance();
+        }
     }
 
     @Override
@@ -57,12 +77,17 @@ public class Recorder implements Receiver {
         // Second byte is velocity: we can disregard it
         if(!notesOn.contains(sm.getData1())){
             notesOn.add(sm.getData1());
-            System.out.println("Note On");
             if(noteHigh != 0) {
                 if(noteLow != 0) {
                     // High & Low: we are going to make new high note and increment duration
                     noteHigh = sm.getData1();
-                    duration += 2;
+                    try {
+                        LNote nextNote = advance();
+                        duration += nextNote.getDuration();
+                    } catch (Exception e) {
+                        System.out.println("Could not find next soprano note!");
+                        System.out.println("There's no graceful way to quit here!");
+                    }
                 } else {
                     // High & !Low: new high and low
                     if(duration != 0) { // This is necessary to add spacers
@@ -78,17 +103,31 @@ public class Recorder implements Receiver {
             }
         } else {
             notesOn.remove(sm.getData1());
-            System.out.println("Note Off");
             if(sm.getData1() == noteHigh) {
                 noteHigh = 0;
-                duration += 2;
+                try {
+                    LNote nextNote = advance();
+                    duration += nextNote.getDuration();
+                } catch (Exception e) {
+                    System.out.println("Could not find next soprano note!");
+                    System.out.println("There's no graceful way to quit here!");
+                }
             } else if(sm.getData1() == noteLow) {
-                if(noteHigh != 0) duration += 2;
+                if(noteHigh != 0) {
+                    try {
+                        LNote nextNote = advance();
+                        duration += nextNote.getDuration();
+                    } catch (Exception e) {
+                        System.out.println("Could not find next soprano note!");
+                        System.out.println("There's no graceful way to quit here!");
+                    }
+                }
 
                 LNote note = new LNote(noteLow, sharps, duration);
                 if(note.equals(lastNote)) {
                     lastNote.setTie();
                 }
+                System.out.print(note + " ");
                 other.add(new LVoiceFragment(note));
                 lastNote = note;
                 noteLow = 0;

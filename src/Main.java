@@ -58,27 +58,24 @@ public class Main {
         lStaff = gStaff.convert(new LLyrics(), sharps, startingNote);
         lStaff.makeUpBreaks();
 
-        System.out.println(lStaff.digestLyrics());
-        System.out.println(lStaff.digestSoprano());
-        System.out.println(lStaff.digestAlto());
-        System.out.println(lStaff.digestTenor());
-        System.out.println(lStaff.digestBass());
-
         try {
             Scanner hold = new Scanner(System.in);
             Recorder.setSharps(sharps);
 
             // Record the alto line
+            System.out.println("Play the soprano and alto lines on the MIDI controller, and press enter when finished: ");
             Recorder.startRecording(lStaff.getSoprano(), lStaff.getAlto());
             hold.nextLine();
             Recorder.stopRecording();
 
             // Record the tenor line
+            System.out.println("Play the soprano and tenor lines on the MIDI controller, and press enter when finished: ");
             Recorder.startRecording(lStaff.getSoprano(), lStaff.getTenor());
             hold.nextLine();
             Recorder.stopRecording();
 
             // Record the bass line
+            System.out.println("Play the soprano and bass lines on the MIDI controller, and press enter when finished: ");
             Recorder.startRecording(lStaff.getSoprano(), lStaff.getBass());
             hold.nextLine();
             Recorder.stopRecording();

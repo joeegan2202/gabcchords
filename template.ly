@@ -5,6 +5,7 @@
 global = {
   \cadenzaOn
   \override Glissando #'thickness = #2.0
+  \set tieWaitForNote = ##t
 }
 
 %\header {

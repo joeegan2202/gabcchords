@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 public class LVoiceFragment implements LObject {
     private final ArrayList<LNote> notes;
@@ -22,6 +23,10 @@ public class LVoiceFragment implements LObject {
             duration += note.getDuration();
         }
         return duration;
+    }
+
+    public ListIterator<LNote> getNotesIterator() {
+        return notes.listIterator();
     }
 
     public String digest() {
